@@ -1,0 +1,65 @@
+seed: [1]
+
+data:
+  dataset: gia_vslam
+  params:
+    val: 0.1
+
+    # DLBIM target vector
+    dist_th: 15.0
+    range_th: 5.0
+    close_th: 0.3
+
+    #min_max, standard, powed
+    scaling: min_max
+
+    # AC settings
+    area_type: fp
+
+    # dataset specifications
+    scan_based: True
+    floors: [0, 1, 2, 3, 4]
+    devices:
+      - S20
+      - LG
+      - Galaxy
+      - OnePlus
+
+models:
+
+ # SHL backbone
+
+  - name: DLBIM
+    type: DLBIM
+    backbone: # shared across output head
+      type: MLP
+      layers: [ 512 ]
+      activation: relu
+      dropout: 0.5
+    head: # unique output branch for each head (t, b, r, l)
+      type: MLP
+      layers: [ 512 ]
+      dropout: 0.5
+      activation: relu
+    params:
+      epochs: 50
+      lr: 0.001
+      verbose: 1
+      dlp_reg_lambda: 5.0
+
+  - name: AC (room-based)
+    type: AC
+    backbone:
+    head:
+      type: MLP
+      layers: [512, 512]
+      dropout: 0.5
+      activation: relu
+    params:
+      epochs: 50
+      lr: 0.001
+
+dir:
+  base: exp/gia_vslam/
+  result_file: metrics.pickle
+
